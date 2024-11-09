@@ -1,9 +1,12 @@
 # AWS KMS concepts<a name="concepts"></a>
 
-Learn the basic terms and concepts used in AWS Key Management Service \(AWS KMS\) and how they work together to help protect your data\.
+* goal
+  * | AWS KMS
+    * basic terms & concepts
+    * how do they work together?
 
 **Topics**
-+ [AWS KMS keys](#kms_keys)
++ [AWS KMS keys](#aws-kms-keysa-namekms_keysa)
 + [Customer keys and AWS keys](#key-mgmt)
 + [Symmetric encryption KMS keys](#symmetric-cmks)
 + [Asymmetric KMS keys](#asymmetric-keys-concept)
@@ -18,7 +21,7 @@ Learn the basic terms and concepts used in AWS Key Management Service \(AWS KMS\
 + [Key material origin](#key-origin)
 + [Key spec](#key-spec)
 + [Key usage](#key-usage)
-+ [Envelope encryption](#enveloping)
++ [Envelope encryption](#envelope-encryptiona-nameenvelopinga)
 + [Encryption context](#encrypt_context)
 + [Key policy](#key_permissions)
 + [Grant](#grant)
@@ -27,6 +30,7 @@ Learn the basic terms and concepts used in AWS Key Management Service \(AWS KMS\
 
 ## AWS KMS keys<a name="kms_keys"></a>
 
+* TODO:
 AWS KMS keys \(KMS keys\) are the primary resource in AWS KMS\. You can use a KMS key to encrypt, decrypt, and re\-encrypt data\. It can also generate data keys that you can use outside of AWS KMS\. Typically, you'll use [symmetric encryption KMS keys](#symmetric-cmks), but you can create and use [asymmetric KMS keys](#asymmetric-keys-concept) for encryption or signing, and create and use [HMAC](#hmac-key-concept) KMS keys to generate and verify HMAC tags\.
 
 **Note**  
@@ -431,26 +435,44 @@ For help choosing the key usage for your KMS key, see [Selecting the key usage](
 
 ## Envelope encryption<a name="enveloping"></a>
 
-When you encrypt your data, your data is protected, but you have to protect your encryption key\. One strategy is to encrypt it\. *Envelope encryption* is the practice of encrypting plaintext data with a data key, and then encrypting the data key under another key\.
+* := practice
+  * of
+    * plaintext data -- is encrypted, via -- data key &
+    * data key -- is encrypted, via -- ANOTHER key (*root key*)
+    
+    ![\[Envelope encryption\]](http://docs.aws.amazon.com/kms/latest/developerguide/images/key-hierarchy-root.png)
 
-You can even encrypt the data encryption key under another encryption key, and encrypt that encryption key under another encryption key\. But, eventually, one key must remain in plaintext so you can decrypt the keys and your data\. This top\-level plaintext key encryption key is known as the *root key*\.
+  * / allows 
+    * **protecting data keys**
+      * NOT worry about storing the encrypted data key
+        * Reason: 🧠data key -- is inherently protected by -- encryption 🧠 
+      * encrypted data key -- can be -- stored | alongside the encrypted data
+    * **encrypting the SAME data -- via -- MULTIPLE keys** 
+      * ways
+        * re-encrypt raw data multiple times -- via -- different keys
+        * re-encrypt ONLY the data keys / protect the raw data
+          * 👀recommended one 👀
+            * Reason: 🧠 previous case, if data encrypted are large objects -> encryption operations can take more time 🧠
+    * **combining the strengths of multiple algorithms**
+      * symmetric key algorithms
+        * vs public key algorithms
+          * faster
+          * produce smaller ciphertexts
+      * public key algorithms
+        * inherent separation of
+          * roles 
+          * easier key management
 
-![\[Envelope encryption\]](http://docs.aws.amazon.com/kms/latest/developerguide/images/key-hierarchy-root.png)
+* AWS KMS 
+  * protect your encryption keys -- by --
+    * storing
+    * managing them securely
 
-AWS KMS helps you to protect your encryption keys by storing and managing them securely\. Root keys stored in AWS KMS, known as [AWS KMS keys](#kms_keys), never leave the AWS KMS [FIPS validated hardware security modules](https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4177) unencrypted\. To use a KMS key, you must call AWS KMS\.
+* *root key*
+  * == [AWS KMS keys](#aws-kms-keysa-namekms_keysa) / NEVER leave the AWS KMS [FIPS validated hardware security modules](https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4177) unencrypted
 
-![\[Envelope encryption with multiple key encryption keys\]](http://docs.aws.amazon.com/kms/latest/developerguide/images/key-hierarchy-kms-key.png)
-
-Envelope encryption offers several benefits:
-+ **Protecting data keys**
-
-  When you encrypt a data key, you don't have to worry about storing the encrypted data key, because the data key is inherently protected by encryption\. You can safely store the encrypted data key alongside the encrypted data\.
-+ **Encrypting the same data under multiple keys**
-
-  Encryption operations can be time consuming, particularly when the data being encrypted are large objects\. Instead of re\-encrypting raw data multiple times with different keys, you can re\-encrypt only the data keys that protect the raw data\.
-+ **Combining the strengths of multiple algorithms**
-
-  In general, symmetric key algorithms are faster and produce smaller ciphertexts than public key algorithms\. But public key algorithms provide inherent separation of roles and easier key management\. Envelope encryption lets you combine the strengths of each strategy\.
+* _Example:_ MULTIPLE key encryption keys
+    ![Envelope encryption / MULTIPLE key encryption keys](http://docs.aws.amazon.com/kms/latest/developerguide/images/key-hierarchy-kms-key.png)
 
 ## Encryption context<a name="encrypt_context"></a>
 
