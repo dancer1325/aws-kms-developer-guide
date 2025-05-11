@@ -1,6 +1,8 @@
 # Asymmetric key specs<a name="asymmetric-key-specs"></a>
 
-The following topics provide technical information about the key specs that AWS KMS supports for asymmetric KMS keys\. Information about the SYMMETRIC\_DEFAULT key spec for symmetric encryption keys is included for comparison\.
+* goal
+  * assymetric key specs / -- supported by -- AWS KMS
+  * assymetric encryption key vs SYMMETRIC\_DEFAULT key spec
 
 **Topics**
 + [RSA key specs](#key-spec-rsa)
@@ -10,7 +12,9 @@ The following topics provide technical information about the key specs that AWS 
 
 ## RSA key specs<a name="key-spec-rsa"></a>
 
-When you use an RSA key spec, AWS KMS creates an asymmetric KMS key with an RSA key pair\. The private key never leaves AWS KMS unencrypted\. You can use the public key within AWS KMS, or download the public key for use outside of AWS KMS\. 
+* TODO: When you use an RSA key spec, AWS KMS creates an asymmetric KMS key with an RSA key pair
+ The private key never leaves AWS KMS unencrypted
+ You can use the public key within AWS KMS, or download the public key for use outside of AWS KMS\. 
 
 **Warning**  
 When you encrypt data outside of AWS KMS, be sure that you can decrypt your ciphertext\. If you use the public key from a KMS key that has been deleted from AWS KMS, the public key from a KMS key configured for signing and verification, or an encryption algorithm that is not supported by the KMS key, the data is unrecoverable\.
@@ -283,6 +287,8 @@ public class SM2OfflineOperationHelper {
 ## SYMMETRIC\_DEFAULT key spec<a name="key-spec-symmetric-default"></a>
 
 The default key spec, SYMMETRIC\_DEFAULT, is the key spec for symmetric encryption KMS keys\. When you select the **Symmetric** key type and the **Encrypt and decrypt** key usage in the AWS KMS console, it selects the `SYMMETRIC_DEFAULT` key spec\. In the [CreateKey](https://docs.aws.amazon.com/kms/latest/APIReference/API_CreateKey.html) operation, if you don't specify a `KeySpec` value, SYMMETRIC\_DEFAULT is selected\. If you don't have a reason to use a different key spec, SYMMETRIC\_DEFAULT is a good choice\.
+
+, represents a 256\-bit symmetric encryption key\.  
 
 SYMMETRIC\_DEFAULT currently represents AES\-256\-GCM, a symmetric algorithm based on [Advanced Encryption Standard](https://csrc.nist.gov/csrc/media/publications/fips/197/final/documents/fips-197.pdf) \(AES\) in [Galois Counter Mode](http://csrc.nist.gov/publications/nistpubs/800-38D/SP-800-38D.pdf) \(GCM\) with 256\-bit keys, an industry standard for secure encryption\. The ciphertext that this algorithm generates supports additional authenticated data \(AAD\), such as an [encryption context](concepts.md#encrypt_context), and GCM provides an additional integrity check on the ciphertext\. For technical details, see [AWS Key Management Service Cryptographic Details](https://docs.aws.amazon.com/kms/latest/cryptographic-details/)\.
 
