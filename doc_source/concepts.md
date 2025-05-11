@@ -30,13 +30,38 @@
 
 ## AWS KMS keys<a name="kms_keys"></a>
 
-* TODO:
-AWS KMS keys \(KMS keys\) are the primary resource in AWS KMS\. You can use a KMS key to encrypt, decrypt, and re\-encrypt data\. It can also generate data keys that you can use outside of AWS KMS\. Typically, you'll use [symmetric encryption KMS keys](#symmetric-cmks), but you can create and use [asymmetric KMS keys](#asymmetric-keys-concept) for encryption or signing, and create and use [HMAC](#hmac-key-concept) KMS keys to generate and verify HMAC tags\.
+* := logical representation -- of a -- cryptographic key
+  * 's metadata
+    * key ID,
+    * [key spec](#key-speca-namekey-speca),
+    * [key usage](#key-usagea-namekey-usagea),
+    * creation date,
+    * description,
+    * [key state](key-state.md)
+    * -- reference to the -- [key material](#key-materiala-namekey-materiala) / used | perform cryptographic operations -- via the -- KMS key
+* 👀== primary resource | AWS KMS 👀
+* uses
+  * encrypt,
+  * decrypt,
+  * re-encrypt data
+  * generate data keys / can be used | outside of AWS KMS
+* types
+  * [symmetric encryption KMS keys](#symmetric-cmks)
+  * [asymmetric KMS keys](#asymmetric-keys-concept)
+    * used for
+      * encryption
+      * signing,
+  * [HMAC](#hmac-key-concept) KMS keys
+    * used to
+      * generate
+      * verify HMAC tags
 
-**Note**  
-AWS KMS is replacing the term *customer master key \(CMK\)* with *AWS KMS key* and *KMS key*\. The concept has not changed\. To prevent breaking changes, AWS KMS is keeping some variations of this term\.
+* *customer master key \(CMK\)* term
+  * -- is replaced by --
+    * *AWS KMS key*
+    * *KMS key*
 
-An *AWS KMS key* is a logical representation of a cryptographic key\. A KMS key contains metadata, such as the key ID, [key spec](#key-spec), [key usage](#key-usage), creation date, description, and [key state](key-state.md)\. Most importantly, it contains a reference to the [key material](#key-material) that is used when you perform cryptographic operations with the KMS key\.
+
 
 You can create a KMS key with cryptographic key material generated in AWS KMS [FIPS validated hardware security modules](https://csrc.nist.gov/projects/cryptographic-module-validation-program/certificate/4177)\. The key material for symmetric KMS keys and the private keys of asymmetric KMS key never leaves AWS KMS unencrypted\.  To use or manage your KMS keys, you must use AWS KMS\. For information about creating and managing KMS keys, see [Managing keys](getting-started.md)\. For information about using KMS keys, see the [AWS Key Management Service API Reference](https://docs.aws.amazon.com/kms/latest/APIReference/)\.
 
@@ -48,6 +73,7 @@ For information about creating and managing KMS keys, see [Managing keys](gettin
 
 ## Customer keys and AWS keys<a name="key-mgmt"></a>
 
+* TODO:
 The KMS keys that you create are [customer managed keys](#customer-cmk)\. AWS services that use KMS keys to encrypt your service resources often create keys for you\. KMS keys that AWS services create in your AWS account are [AWS managed keys](#aws-managed-cmk)\. KMS keys that AWS services create in a service account are [AWS owned keys](#aws-owned-cmk)\. 
 
 
@@ -416,16 +442,39 @@ For help creating a KMS key in an external key store, see [Creating KMS keys in 
 
 ## Key spec<a name="key-spec"></a>
 
-*Key spec* is a property that represents the cryptographic configuration of a key\. The meaning of the key spec differs with the key type\.
-+ [AWS KMS keys](#kms_keys) — The *key spec* determines whether the KMS key is symmetric or asymmetric\. It also determines the type of its key material, and the algorithms it supports\. You choose the key spec when you [create the KMS key](create-keys.md), and you cannot change it\. The default key spec, [SYMMETRIC\_DEFAULT](asymmetric-key-specs.md#key-spec-symmetric-default), represents a 256\-bit symmetric encryption key\. 
-**Note**  
-The `KeySpec` for a KMS key was known as a `CustomerMasterKeySpec`\. The `CustomerMasterKeySpec` parameter of the [CreateKey](https://docs.aws.amazon.com/kms/latest/APIReference/API_CreateKey.html) operation is deprecated\. Instead, use the `KeySpec` parameter, which works the same way\. To prevent breaking changes, the response of the `CreateKey` and [DescribeKey](https://docs.aws.amazon.com/kms/latest/APIReference/API_DescribeKey.html) operations now includes both `KeySpec` and `CustomerMasterKeySpec` members with the same values\.
+* := property / -- represents the -- cryptographic configuration of a key
+  * determines the
+    * KMS key type (== symmetric or asymmetric)
+    * type of its key material
+    * algorithms / supports 
+  * choose it?
+    * | [create the KMS key](create-keys.md)
+    * can NOT be changed
 
-  For a list of key specs and help with choosing a key spec, see [Selecting the key spec](key-types.md#symm-asymm-choose-key-spec)\. To find the key spec of a KMS key, use the [DescribeKey](https://docs.aws.amazon.com/kms/latest/APIReference/API_DescribeKey.html) operation, or see the **Cryptographic configuration** tab on the detail page for a KMS key in the AWS KMS console\. For help, see [Viewing Keys](viewing-keys.md)\.
+* [default key spec](asymmetric-key-specs.md#symmetric_default-key-speca-namekey-spec-symmetric-defaulta)
 
-  To limit the key specs that principals can use when creating KMS keys, use the [kms:KeySpec](conditions-kms.md#conditions-kms-key-spec) condition key\. You can also use the `kms:KeySpec` condition key to allow principals to call AWS KMS operations only on KMS keys with a particular key spec\. For example, you can deny permission to schedule deletion of any KMS key with an `RSA_4096` key spec\. 
-+ [Data keys](#data-keys) \([GenerateDataKey](https://docs.aws.amazon.com/kms/latest/APIReference/API_GenerateDataKey.html)\) — The *key spec* determines the length of an AES data key\. 
-+ [Data keys pairs](#data-key-pairs) \([GenerateDataKeyPair](https://docs.aws.amazon.com/kms/latest/APIReference/API_GenerateDataKeyPair.html)\) — The *key pair spec* determines the type of key material in the data key pair\.
+* `CustomerMasterKeySpec`
+  * == `KeySpec` -- for a -- KMS key
+* [CreateKey's `CustomerMasterKeySpec` parameter](https://docs.aws.amazon.com/kms/latest/APIReference/API_CreateKey.html) & [DescribeKey's `CustomerMasterKeySpec` parameter](https://docs.aws.amazon.com/kms/latest/APIReference/API_DescribeKey.html)
+  * deprecated
+    * -> use the `KeySpec` parameter
+  * response value == (respectively) CreateKey's `KeySpec` response value & DescribeKey's `KeySpec` response value
+    * Reason: 🧠 prevent breaking changes 🧠
+
+* see
+  * [Selecting the key spec](key-types.md#selecting-the-key-speca-namesymm-asymm-choose-key-speca)
+  * [Viewing Keys](viewing-keys.md)
+* if you want to
+  * find the KMS key's spec -> 
+    * use the [DescribeKey](https://docs.aws.amazon.com/kms/latest/APIReference/API_DescribeKey.html) operation, or
+    * see the **Cryptographic configuration** tab | AWS KMS console
+  * limit the key specs / principals can use | creating KMS keys -> use the [kms:KeySpec](conditions-kms.md#aws-kms-condition-keysa-nameconditions-kmsa) 
+  * allow principals to call AWS KMS operations ONLY | KMS keys / particular key spec -> use the [kms:KeySpec](conditions-kms.md#aws-kms-condition-keysa-nameconditions-kmsa)
+* For example, you can deny permission to schedule deletion of any KMS key with an `RSA_4096` key spec\. 
++ [Data keys](#data-keys) \([GenerateDataKey](https://docs.aws.amazon.com/kms/latest/APIReference/API_GenerateDataKey.html)\)
+  + *key spec* -- determines the -- length of an AES data key 
++ [Data keys pairs](#data-key-pairs) \([GenerateDataKeyPair](https://docs.aws.amazon.com/kms/latest/APIReference/API_GenerateDataKeyPair.html)\)
+  + *key pair spec* -- determines the -- type of key material | data key pair
 
 ## Key usage<a name="key-usage"></a>
 
